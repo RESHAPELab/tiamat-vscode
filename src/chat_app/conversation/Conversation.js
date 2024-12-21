@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import Message from "./Message";
-import "./Conversation.css";
+import { Box, Button, Checkbox, FormControlLabel, TextField } from '@mui/material';
 
 const Conversation = () => {
     const [prompt, setPrompt] = useState("");
@@ -10,92 +10,73 @@ const Conversation = () => {
     const [enabled, setEnabled] = useState(true);
 
     const testMessages = [
-        "This is a test message.",
-        "Here's a random response.",
-        "I'm in test mode, no API calls here!",
-        "Hello! Here is a **bold** text, an *italicized* word, and a [link](https://www.example.com).",
-        "Another test response!"
-      ];
-
-    const queryAssistant = async (msg) => {
-        if (testMode === true) {
-            return testMessages[Math.floor(Math.random() * testMessages.length)];
-        } else {
-            try {
-                const response = await axios.post('http://127.0.0.1:8000/v1/assistant/prompt', {
-                    message: msg,
-                    session_id: 'vscode',
-                });
-                return response.data.answer;
-            } catch (error) {
-                console.error('Error:', error);
-                return error.message;
-            }
-        }
-    };
+        "**Hello!** This is a *quick test* with a [link](https://example.com).",
+        "Testing **bold text** and *italic text*!",
+        "Markdown works great!"
+    ];
 
     const sendMessage = async () => {
         if (enabled && prompt.trim()) {
             setEnabled(false);
-
-            setMessageHistory((prevMessages) => [{speaker: "You", content: prompt.trim()}, ...prevMessages]);
+            setMessageHistory((prev) => [{ speaker: "You", content: prompt.trim() }, ...prev]);
             setPrompt("");
 
-            let response = await queryAssistant(prompt.trim());
-            setMessageHistory((prevMessages) => [{speaker: "Tiamat", content: response}, ...prevMessages]);
+            const response = testMode
+                ? testMessages[Math.floor(Math.random() * testMessages.length)]
+                : "Simulated response from assistant";
 
+            setMessageHistory((prev) => [{ speaker: "Tiamat", content: response }, ...prev]);
             setEnabled(true);
         }
     };
 
-    const handleKeyDown = async (event) => {
+    const handleKeyDown = (event) => {
         if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
-            await sendMessage();
+            sendMessage();
         }
     };
 
-    const exportConversation = () => {
-        const textContent = messageHistory
-        .map(message => `${message.speaker}: ${message.content}`)
-        .reverse()
-        .join('\n');
-    
-    const blob = new Blob([textContent], { type: 'text/plain'});
-    const link = document.createElement('a');
-
-    link.href = URL.createObjectURL(blob);
-    link.download = 'conversation.txt';
-    link.click();
-    };
-
     return (
-        <div className="conversation">
-            <div className="test-mode">
-                <label for="test-mode">Test Mode:</label>
-                <input className="test-mode-checkbox"
-                    name="test-mode"
-                    type="checkbox"
-                    value={testMode}
-                    onChange={() => testMode = setTestMode(!testMode)}
-                />
-            </div>
-            <div className="messages">
+        <Box sx={{ width: '100%', maxWidth: 700, margin: 'auto', mt: 5, p: 2 }}>
+            <FormControlLabel
+                control={
+                    <Checkbox
+                        checked={testMode}
+                        onChange={() => setTestMode(!testMode)}
+                    />
+                }
+                label="Test Mode"
+            />
+            <Box sx={{ 
+                height: 400, 
+                overflowY: 'auto', 
+                border: '1px solid #ddd', 
+                borderRadius: 2, 
+                p: 2,
+                backgroundColor: '#f9f9f9',
+                mb: 2
+            }}>
                 {messageHistory.map((message, index) => (
-                    <Message speaker={message.speaker} content={message.content} />
+                    <Message key={index} speaker={message.speaker} content={message.content} />
                 ))}
-            </div>
-            <div className="input-section">
-                <textarea className="user-input"
-                    placeholder="Type your message here"
-                    value={prompt}
-                    onChange={(event) => setPrompt(event.target.value)}
-                    onKeyDown={handleKeyDown}
-                />
-                <button className="send-button" onClick={sendMessage}>Send</button>
-                <button className='export-button' onClick={exportConversation}>Export</button>
-            </div>
-        </div>
+            </Box>
+            <TextField
+                fullWidth
+                multiline
+                minRows={3}
+                variant="outlined"
+                placeholder="Type your message here"
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                onKeyDown={handleKeyDown}
+                sx={{ mb: 2 }}
+            />
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Button variant="contained" onClick={sendMessage} sx={{ px: 4 }}>Send</Button>
+                <Button variant="outlined">Export</Button>
+            </Box>
+        </Box>
     );
 };
 
