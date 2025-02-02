@@ -1,71 +1,53 @@
 {
-  "name": "tiamat-vscode",
-  "displayName": "Tiamat",
-  "description": "LLM-based conversational agent intended for use by novice programming students. ",
-  "version": "0.0.1",
-  "engines": {
-    "vscode": "^1.93.0"
-  },
-  "categories": [
-    "Other"
-  ],
-  "activationEvents": [],
-  "main": "./out/extension.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/pehilbert/tiamat-vscode"
-  },
-  "contributes": {
-    "commands": [
-      {
-        "command": "tiamat-vscode.helloWorld",
-        "title": "Tiamat: Hello World"
-      },
-      {
-        "command": "tiamat-vscode.chat",
-        "title": "Tiamat: Open Chat"
-      }
-    ]
-  },
-  "scripts": {
-    "build": "npm run build:ts && npm run build:react",
-    "build:ts": "tsc -p ./",
-    "build:react": "npx webpack --config webpack.config.js",
-    "watch": "concurrently \"npm run watch:ts\" \"npm run watch:react\"",
-    "watch:ts": "tsc -w",
-    "watch:react": "npx webpack --watch --config webpack.config.js",
-    "vscode:prepublish": "npm run build",
-    "compile": "npm run build",
-    "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src",
-    "test": "vscode-test"
-  },
-  "devDependencies": {
-    "@babel/preset-env": "^7.25.4",
-    "@babel/preset-react": "^7.24.7",
-    "@types/mocha": "^10.0.7",
-    "@types/node": "20.x",
-    "@types/vscode": "^1.93.0",
-    "@typescript-eslint/eslint-plugin": "^8.3.0",
-    "@typescript-eslint/parser": "^8.3.0",
-    "@vscode/test-cli": "^0.0.10",
-    "@vscode/test-electron": "^2.4.1",
-    "babel-loader": "^9.1.3",
-    "concurrently": "^9.0.1",
-    "css-loader": "^7.1.2",
-    "eslint": "^9.9.1",
-    "html-webpack-plugin": "^5.6.0",
-    "style-loader": "^4.0.0",
-    "typescript": "^5.5.4",
-    "webpack": "^5.94.0",
-    "webpack-cli": "^5.1.4"
-  },
-  "dependencies": {
-    "axios": "^1.7.7",
-    "express": "^4.21.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-markdown": "^9.0.1",
-    "tiamat-vscode": "file:"
-  }
+    "name": "tiamat",
+    "displayName": "Tiamat",
+    "description": "",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.93.0"
+    },
+    "categories": [
+        "AI",
+        "Chat"
+    ],
+    "activationEvents": [],
+    "main": "./out/extension.js",
+    "contributes": {
+        "chatParticipants": [
+            {
+                "id": "tiamat.Tiamat",
+                "fullName": "Tiamat",
+                "name": "tiamat",
+                "description": "Ask me anything...",
+                "isSticky": true,
+                "commands": []
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "pretest": "npm run compile && npm run lint",
+        "lint": "eslint",
+        "test": "node ./out/test/runTest.js"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.13.0",
+        "@stylistic/eslint-plugin": "^2.9.0",
+        "@types/mocha": "^10.0.3",
+        "@types/node": "18.x",
+        "@types/vscode": "^1.94.0",
+        "@vscode/test-electron": "^2.3.6",
+        "eslint": "^9.13.0",
+        "glob": "^10.3.10",
+        "mocha": "^10.2.0",
+        "typescript": "^5.2.2",
+        "typescript-eslint": "^8.16.0"
+    },
+    "dependencies": {
+        "axios": "^1.7.9",
+        "code-tutor": "file:",
+        "tiamat": "file:"
+    }
 }
