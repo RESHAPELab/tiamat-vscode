@@ -6,6 +6,7 @@ export function activate(context: vscode.ExtensionContext) {
 	// define a chat handler
 	const handler: vscode.ChatRequestHandler = async (request: vscode.ChatRequest, context: vscode.ChatContext, stream: vscode.ChatResponseStream, token: vscode.CancellationToken) => {
         stream.progress("Thinking...");
+        console.log("User message:", request.prompt);
         console.log("Token:", token);
         console.log("References:", request.references);
         console.log("Context:", context);
