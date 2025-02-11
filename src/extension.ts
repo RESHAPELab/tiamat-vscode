@@ -3,6 +3,8 @@ import {post} from 'axios';
 import * as fs from 'fs';
 import {authenticateWithGitHub} from './auth';
 
+const MAX_HISTORY_LENGTH = 6;
+
 export function activate(context: vscode.ExtensionContext) {
 	// define a chat handler
 	const chatHandler: vscode.ChatRequestHandler = async (request: vscode.ChatRequest, chatContext: vscode.ChatContext, stream: vscode.ChatResponseStream, token: vscode.CancellationToken) => {
@@ -47,11 +49,29 @@ export function activate(context: vscode.ExtensionContext) {
         console.log("Final code:");
         console.log(code);
 
+        let history: string[] = [];
+
+        chatContext.history.slice(-MAX_HISTORY_LENGTH).forEach((item) => {
+            if (item instanceof vscode.ChatRequestTurn) {
+                history.push("User: " + item.prompt);
+            } else if (item instanceof vscode.ChatResponseTurn) {
+                let fullMessage = '';
+                item.response.forEach(r => {
+                    const mdPart = r as vscode.ChatResponseMarkdownPart;
+                    fullMessage += mdPart.value.value;
+                });
+
+                history.push("Tiamat: " + fullMessage);
+            }
+        });
+
+        console.log("Chat history:", history);
+
         let id = await authenticateWithGitHub(context);
         console.log("User ID:", id);
 
         try {
-            const apiResponse = await post('http://localhost:5000/api/prompt', {id, code, message: request.prompt});
+            const apiResponse = await post('http://localhost:5000/api/prompt', {id, code, message: request.prompt, history});
             stream.markdown(apiResponse.data.response);
         } catch (err) {
             console.log(err);
