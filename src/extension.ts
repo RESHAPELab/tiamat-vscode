@@ -1,14 +1,15 @@
 import * as vscode from 'vscode';
 import {post} from 'axios';
 import * as fs from 'fs';
+import {authenticateWithGitHub} from './auth';
 
 export function activate(context: vscode.ExtensionContext) {
 	// define a chat handler
-	const chatHandler: vscode.ChatRequestHandler = async (request: vscode.ChatRequest, context: vscode.ChatContext, stream: vscode.ChatResponseStream, token: vscode.CancellationToken) => {
+	const chatHandler: vscode.ChatRequestHandler = async (request: vscode.ChatRequest, chatContext: vscode.ChatContext, stream: vscode.ChatResponseStream, token: vscode.CancellationToken) => {
         stream.progress("Thinking...");
         console.log("Token:", token);
         console.log("References:", request.references);
-        console.log("Context:", context);
+        console.log("Context:", chatContext);
 
         let code = "";
 
@@ -46,8 +47,11 @@ export function activate(context: vscode.ExtensionContext) {
         console.log("Final code:");
         console.log(code);
 
+        let id = await authenticateWithGitHub(context);
+        console.log("User ID:", id);
+
         try {
-            const apiResponse = await post('http://localhost:5000/api/prompt', {id: '1', code, message: request.prompt});
+            const apiResponse = await post('http://localhost:5000/api/prompt', {id, code, message: request.prompt});
             stream.markdown(apiResponse.data.response);
         } catch (err) {
             console.log(err);
