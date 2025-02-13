@@ -1,6 +1,11 @@
 import * as vscode from 'vscode';
 import {post} from 'axios';
 import * as fs from 'fs';
+import {authenticateWithGitHub} from './auth';
+
+const MAX_HISTORY_LENGTH = 6;
+const GOOD = 1;
+const BAD = 0;
 
 export function activate(context: vscode.ExtensionContext) {
 	// define a chat handler
@@ -14,12 +19,12 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
-	const handler: vscode.ChatRequestHandler = async (request: vscode.ChatRequest, context: vscode.ChatContext, stream: vscode.ChatResponseStream, token: vscode.CancellationToken) => {
+	const chatHandler: vscode.ChatRequestHandler = async (request: vscode.ChatRequest, chatContext: vscode.ChatContext, stream: vscode.ChatResponseStream, token: vscode.CancellationToken) => {
         stream.progress("Thinking...");
         console.log("User message:", request.prompt);
         console.log("Token:", token);
         console.log("References:", request.references);
-        console.log("Context:", context);
+        console.log("Context:", chatContext);
 
         let code = "";
 
@@ -56,16 +61,43 @@ export function activate(context: vscode.ExtensionContext) {
         console.log("Final code:");
         console.log(code);
 
-        try {  
-            const apiResponse = await post('http://localhost:5000/api/prompt', {id: '1', code, message: request.prompt});
+        let history: string[] = [];
+
+        chatContext.history.slice(-MAX_HISTORY_LENGTH).forEach((item) => {
+            if (item instanceof vscode.ChatRequestTurn) {
+                history.push("User: " + item.prompt);
+            } else if (item instanceof vscode.ChatResponseTurn) {
+                let fullMessage = '';
+                item.response.forEach(r => {
+                    const mdPart = r as vscode.ChatResponseMarkdownPart;
+                    fullMessage += mdPart.value.value;
+                });
+
+                history.push("Tiamat: " + fullMessage);
+            }
+        });
+
+        console.log("Chat history:", history);
+
+        let id = "0";
+        try {
+            id = await authenticateWithGitHub(context) ?? "0";
+        } catch (error) {
+            console.error('Error connecting:', error);
+            
+        }
+        console.log("User ID:", id);
+
+        try {
+            const apiResponse = await post('http://localhost:5000/api/prompt', {id, code, message: request.prompt, history});
             stream.markdown(apiResponse.data.response);
-            var args = {id: '1', code: code, message: request.prompt, rating: 'good', response: apiResponse.data.response};          
+            var args = {id: id, code: code, message: request.prompt, rating: GOOD, response: apiResponse.data.response};          
             stream.button({
                 command: 'tiamat.handleFeedback',
                 title: vscode.l10n.t('Good!'),
                 arguments: [args]
               });
-            var args = {id: '1', code: code, message: request.prompt, rating: 'bad', response: apiResponse.data.response};          
+            var args = {id: id, code: code, message: request.prompt, rating: BAD, response: apiResponse.data.response};          
             stream.button({
               command: 'tiamat.handleFeedback',
               title: vscode.l10n.t('Bad!'),
@@ -78,13 +110,13 @@ export function activate(context: vscode.ExtensionContext) {
                  These buttons are added for testing purposes when LLM server is down or for
                  rate limiting in my case, remove in production
             */
-            args = {id: '1', code: code, message: request.prompt, rating: 'good', response: "bad response"};    
+            args = {id: id, code: code, message: request.prompt, rating: GOOD, response: "bad response"};    
             stream.button({
                 command: 'tiamat.handleFeedback',
                 title: vscode.l10n.t('Good!'),
                 arguments: [args]
               });
-            args = {id: '1', code: code, message: request.prompt, rating: 'bad', response: "bad response"};   
+            args = {id: id, code: code, message: request.prompt, rating: BAD, response: "bad response"};   
             stream.button({
               command: 'tiamat.handleFeedback',
               title: vscode.l10n.t('Bad!'),
@@ -95,8 +127,27 @@ export function activate(context: vscode.ExtensionContext) {
 		return;
 	};
 
+    const handleFeedback = (feedback: vscode.ChatResultFeedback) => {
+        console.log('Feedback received:', feedback);
+
+        switch (feedback.kind) {
+            case vscode.ChatResultFeedbackKind.Helpful:
+                vscode.window.showInformationMessage('Happy that you liked it.');
+                break;
+            case vscode.ChatResultFeedbackKind.Unhelpful:
+                vscode.window.showWarningMessage('Sorry that you didn\'t like our response.');
+                break;
+            default:
+                vscode.window.showInformationMessage('Received feedback.');
+                break;
+        }
+    };
+
 	// create participant
-	const tutor = vscode.chat.createChatParticipant("tiamat.Tiamat", handler);
+	const tutor = vscode.chat.createChatParticipant("tiamat.Tiamat", chatHandler);
+
+    // Handle thumbs up and down feedback
+    tutor.onDidReceiveFeedback(handleFeedback);
 
 	// add icon to participant
 	tutor.iconPath = vscode.Uri.joinPath(context.extensionUri, 'tutor.jpeg');
