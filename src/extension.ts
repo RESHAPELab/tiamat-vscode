@@ -127,27 +127,8 @@ export function activate(context: vscode.ExtensionContext) {
 		return;
 	};
 
-    const handleFeedback = (feedback: vscode.ChatResultFeedback) => {
-        console.log('Feedback received:', feedback);
-
-        switch (feedback.kind) {
-            case vscode.ChatResultFeedbackKind.Helpful:
-                vscode.window.showInformationMessage('Happy that you liked it.');
-                break;
-            case vscode.ChatResultFeedbackKind.Unhelpful:
-                vscode.window.showWarningMessage('Sorry that you didn\'t like our response.');
-                break;
-            default:
-                vscode.window.showInformationMessage('Received feedback.');
-                break;
-        }
-    };
-
 	// create participant
 	const tutor = vscode.chat.createChatParticipant("tiamat.Tiamat", chatHandler);
-
-    // Handle thumbs up and down feedback
-    tutor.onDidReceiveFeedback(handleFeedback);
 
 	// add icon to participant
 	tutor.iconPath = vscode.Uri.joinPath(context.extensionUri, 'tutor.jpeg');
