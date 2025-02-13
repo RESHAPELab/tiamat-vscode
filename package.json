@@ -22,6 +22,12 @@
                 "isSticky": true,
                 "commands": []
             }
+        ],
+        "authentication": [
+          {
+            "id": "github",
+            "label": "GitHub"
+          }
         ]
     },
     "scripts": {
