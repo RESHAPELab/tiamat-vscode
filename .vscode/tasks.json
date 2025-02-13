@@ -1,19 +1,20 @@
 // See https://go.microsoft.com/fwlink/?LinkId=733558
 // for the documentation about the tasks.json format
 {
-    "version": "2.0.0",
-    "tasks": [
-      {
-        "label": "build extension",          // Task name
-        "type": "shell",                    // Task type: Shell command
-        "command": "npm run build",         // The build command to run
-        "problemMatcher": [],               // Optional: Define a problem matcher
-        "group": {
-          "kind": "build",
-          "isDefault": true                 // Mark this as the default build task
-        },
-        "detail": "This task runs the build command defined in package.json."
-      }
-    ]
-  }
-  
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "watch",
+			"problemMatcher": "$tsc-watch",
+			"isBackground": true,
+			"presentation": {
+				"reveal": "never"
+			},
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		}
+	]
+}
