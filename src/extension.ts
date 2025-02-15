@@ -6,19 +6,54 @@ import {authenticateWithGitHub} from './auth';
 const MAX_HISTORY_LENGTH = 6;
 const GOOD = 1;
 const BAD = 0;
+const GOOD_REASONS: string[] = ["Helpful", "Accurate", "Well Explained"];
+const BAD_REASONS: string[] = ["Incorrect", "Not Helpful", "Confusing"];
+const FEEDBACK_BUTTON_TEXT = "💬 Provide Feedback to Tiamat";
 
 export function activate(context: vscode.ExtensionContext) {
-	// define a chat handler
+	// Logic for collecting and sending feedback to the server
     vscode.commands.registerCommand('tiamat.handleFeedback', async (args) => {
         try {
             console.log('Arguments:', args);
-            const apiResponse = await post('http://localhost:5000/api/feedback', args);
+
+            const rating = await vscode.window.showQuickPick(['Good', 'Bad'], {
+                placeHolder: 'How was the response?'
+            });
+
+            if (!rating) {
+                return;
+            }
+
+            const ratingEnum = rating === 'Good' ? GOOD : BAD;
+
+            const reasons = ratingEnum === GOOD ? [...GOOD_REASONS, "Other"] : [...BAD_REASONS, "Other"];
+
+            const selectedReason = await vscode.window.showQuickPick(reasons, {
+                placeHolder: `Why was this response ${rating}?`
+            });
+
+            let customReason = selectedReason;
+            if (selectedReason === "Other") {
+                customReason = await vscode.window.showInputBox({
+                    placeHolder: "Please provide additional details"
+                });
+            }
+
+            if (!customReason) {
+                return;
+            }
+
+            const apiResponse = await post('http://localhost:5000/api/feedback', {rating: ratingEnum, reason: customReason, ...args});
+
             console.log('API Response:', apiResponse.data);
+            vscode.window.showInformationMessage('Thank you for your feedback!');
         } catch (error) {
             console.error('Error posting feedback:', error);
+            vscode.window.showErrorMessage('An error occurred while posting feedback. Please try again later.');
         }
     });
 
+    // Handles responses to chat prompts
 	const chatHandler: vscode.ChatRequestHandler = async (request: vscode.ChatRequest, chatContext: vscode.ChatContext, stream: vscode.ChatResponseStream, token: vscode.CancellationToken) => {
         stream.progress("Thinking...");
         console.log("User message:", request.prompt);
@@ -91,17 +126,11 @@ export function activate(context: vscode.ExtensionContext) {
         try {
             const apiResponse = await post('http://localhost:5000/api/prompt', {id, code, message: request.prompt, history});
             stream.markdown(apiResponse.data.response);
-            var args = {id: id, code: code, message: request.prompt, rating: GOOD, response: apiResponse.data.response};          
+            var args = {id: id, code: code, message: request.prompt, response: apiResponse.data.response};          
             stream.button({
                 command: 'tiamat.handleFeedback',
-                title: vscode.l10n.t('Good!'),
+                title: vscode.l10n.t(FEEDBACK_BUTTON_TEXT),
                 arguments: [args]
-              });
-            var args = {id: id, code: code, message: request.prompt, rating: BAD, response: apiResponse.data.response};          
-            stream.button({
-              command: 'tiamat.handleFeedback',
-              title: vscode.l10n.t('Bad!'),
-              arguments: [args]
             });
         } catch (err) {
             console.log(err);
@@ -110,17 +139,11 @@ export function activate(context: vscode.ExtensionContext) {
                  These buttons are added for testing purposes when LLM server is down or for
                  rate limiting in my case, remove in production
             */
-            args = {id: id, code: code, message: request.prompt, rating: GOOD, response: "bad response"};    
+            args = {id: id, code: code, message: request.prompt, response: "bad response"};    
             stream.button({
                 command: 'tiamat.handleFeedback',
-                title: vscode.l10n.t('Good!'),
+                title: vscode.l10n.t(FEEDBACK_BUTTON_TEXT),
                 arguments: [args]
-              });
-            args = {id: id, code: code, message: request.prompt, rating: BAD, response: "bad response"};   
-            stream.button({
-              command: 'tiamat.handleFeedback',
-              title: vscode.l10n.t('Bad!'),
-              arguments: [args],
             });
         }
 
