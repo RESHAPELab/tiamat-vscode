@@ -45,7 +45,6 @@ export function activate(context: vscode.ExtensionContext) {
             }
 
             const apiResponse = await post(`${apiUrl}/api/feedback`, {rating: ratingEnum, reason: customReason, ...args});
-
             console.log('API Response:', apiResponse.data);
             vscode.window.showInformationMessage('Thank you for your feedback!');
         } catch (error) {
@@ -136,16 +135,6 @@ export function activate(context: vscode.ExtensionContext) {
         } catch (err) {
             console.log(err);
             stream.markdown("I'm sorry, I'm having trouble connecting to the server. Please try again later.");
-            /*
-                 These buttons are added for testing purposes when LLM server is down or for
-                 rate limiting in my case, remove in production
-            */
-            args = {id: id, code: code, message: request.prompt, response: "bad response"};    
-            stream.button({
-                command: 'tiamat.handleFeedback',
-                title: vscode.l10n.t(FEEDBACK_BUTTON_TEXT),
-                arguments: [args]
-            });
         }
 
 		return;
