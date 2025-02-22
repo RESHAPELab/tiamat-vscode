@@ -32,7 +32,7 @@
     },
     "scripts": {
         "vscode:prepublish": "npm run compile",
-        "compile": "tsc -p ./",
+        "compile": "node -r dotenv/config && tsc -p ./",
         "watch": "tsc -watch -p ./",
         "pretest": "npm run compile && npm run lint",
         "lint": "eslint",
@@ -54,6 +54,11 @@
     "dependencies": {
         "axios": "^1.7.9",
         "code-tutor": "file:",
+        "dotenv": "^16.4.7",
         "tiamat": "file:"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/RESHAPELab/tiamat-vscode"
     }
 }

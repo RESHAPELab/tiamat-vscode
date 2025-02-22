@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import {post} from 'axios';
 import * as fs from 'fs';
 import {authenticateWithGitHub} from './auth';
+import apiUrl from "./config";
 
 const MAX_HISTORY_LENGTH = 6;
 const GOOD = 1;
@@ -43,7 +44,7 @@ export function activate(context: vscode.ExtensionContext) {
                 return;
             }
 
-            const apiResponse = await post('http://localhost:5000/api/feedback', {rating: ratingEnum, reason: customReason, ...args});
+            const apiResponse = await post(`${apiUrl}/api/feedback`, {rating: ratingEnum, reason: customReason, ...args});
 
             console.log('API Response:', apiResponse.data);
             vscode.window.showInformationMessage('Thank you for your feedback!');
@@ -124,7 +125,7 @@ export function activate(context: vscode.ExtensionContext) {
         console.log("User ID:", id);
 
         try {
-            const apiResponse = await post('http://localhost:5000/api/prompt', {id, code, message: request.prompt, history});
+            const apiResponse = await post(`${apiUrl}/api/prompt`, {id, code, message: request.prompt, history});
             stream.markdown(apiResponse.data.response);
             var args = {id: id, code: code, message: request.prompt, response: apiResponse.data.response};          
             stream.button({
