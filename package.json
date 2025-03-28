@@ -3,6 +3,7 @@
     "displayName": "Tiamat",
     "description": "",
     "version": "0.0.1",
+    "publisher": "RESHAPELab",
     "engines": {
         "vscode": "^1.93.0"
     },
@@ -10,7 +11,9 @@
         "AI",
         "Chat"
     ],
-    "activationEvents": [],
+    "activationEvents": [
+        "onChatParticipant:tiamat.Tiamat"
+    ],
     "main": "./out/extension.js",
     "contributes": {
         "chatParticipants": [
@@ -59,7 +62,7 @@
         "@stylistic/eslint-plugin": "^2.9.0",
         "@types/mocha": "^10.0.3",
         "@types/node": "18.x",
-        "@types/vscode": "^1.94.0",
+        "@types/vscode": "^1.93.0",
         "@vscode/test-electron": "^2.3.6",
         "eslint": "^9.13.0",
         "glob": "^10.3.10",
@@ -69,7 +72,6 @@
     },
     "dependencies": {
         "axios": "^1.7.9",
-        "code-tutor": "file:",
         "dotenv": "^16.4.7",
         "tiamat": "file:"
     },
