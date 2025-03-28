@@ -28,7 +28,23 @@
                 "id": "github",
                 "label": "GitHub"
             }
-        ]
+        ],
+        "commands": [
+            {
+                "command": "tiamat.openPersonalization",
+                "title": "Open Personalization Settings"
+            }         
+        ],
+        "configuration": {
+            "title": "Tiamat Personalization",
+            "properties": {
+                "personalization.prompt": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Extra preferences that Tiamat will use to curate its responses for you."
+                }
+            }
+        }
     },
     "scripts": {
         "vscode:prepublish": "npm run compile",

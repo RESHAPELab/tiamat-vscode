@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import {post} from 'axios';
 import * as fs from 'fs';
 import {authenticateWithGitHub} from './auth';
+import {syncPersonalization, updatePersonalization} from './personalization';
 import apiUrl from "./config";
 
 const MAX_HISTORY_LENGTH = 6;
@@ -145,6 +146,39 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// add icon to participant
 	tutor.iconPath = vscode.Uri.joinPath(context.extensionUri, 'tutor.jpeg');
+
+    // Personalization management
+
+    // Sync personalization with backend
+    syncPersonalization(context);
+
+    vscode.workspace.onDidChangeConfiguration(async (e) => {
+        if (
+            e.affectsConfiguration('personalization.prompt')
+        ) {
+            const config = vscode.workspace.getConfiguration();
+            const newPrompt = config.get<string>('personalization.prompt');
+
+            if (newPrompt) {
+                updatePersonalization(context, newPrompt);
+            }
+        }
+    });
+    
+    // Allow user to manage personalization
+    context.subscriptions.push(
+        vscode.commands.registerCommand('extension.openPersonalization', () => {
+            vscode.window.showInformationMessage('Opening Tiamat Personalization settings...');
+        })
+    );
+      
+    const personalizationStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+    personalizationStatusBarItem.text = '$(gear) Tiamat Personalization';
+    personalizationStatusBarItem.tooltip = 'View or modify your personalization settings for Tiamat';
+    personalizationStatusBarItem.command = 'extension.openPersonalization';
+    personalizationStatusBarItem.show();
+
+    context.subscriptions.push(personalizationStatusBarItem);
 }
 
 export function deactivate() { }
