@@ -14,10 +14,10 @@ export async function syncPersonalization(context: vscode.ExtensionContext) {
         }
 
         const result = await get(`${apiUrl}/api/personalization/${userId}`);
-        const prompt = result.data.personalization || "";
+        const personalization = result.data.personalization || {"personalizedPrompt": ""};
 
         const config = vscode.workspace.getConfiguration();
-        await config.update('personalization.prompt', prompt, vscode.ConfigurationTarget.Global);
+        await config.update('tiamat.personalization', personalization, vscode.ConfigurationTarget.Global);
         vscode.window.showInformationMessage("Tiamat: Personalization settings synced successfully");
     } catch (error: AxiosError | any) {
         // No need to show a message if they simply don't have any personalization settings (404)
@@ -28,7 +28,11 @@ export async function syncPersonalization(context: vscode.ExtensionContext) {
     }
 }
 
-export async function updatePersonalization(context: vscode.ExtensionContext, newPrompt: string) {
+export interface Personalization {
+    personalizedPrompt: string;
+}
+
+export async function updatePersonalization(context: vscode.ExtensionContext, newPersonalization: Personalization) {
     try {
         const userId = await authenticateWithGitHub(context);
 
@@ -37,7 +41,7 @@ export async function updatePersonalization(context: vscode.ExtensionContext, ne
             return;
         }
 
-        await put(`${apiUrl}/api/personalization/${userId}`, { personalization: newPrompt });
+        await put(`${apiUrl}/api/personalization/${userId}`, { personalization: { personalizedPrompt: newPersonalization.personalizedPrompt } });
         vscode.window.showInformationMessage("Tiamat: Personalization settings updated successfully");
     } catch (error) {
         vscode.window.showErrorMessage("Tiamat: Error updating personalization settings");

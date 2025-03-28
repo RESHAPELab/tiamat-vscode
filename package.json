@@ -36,14 +36,16 @@
             {
                 "command": "tiamat.openPersonalization",
                 "title": "Open Personalization Settings"
-            }         
+            }
         ],
         "configuration": {
             "title": "Tiamat Personalization",
             "properties": {
-                "personalization.prompt": {
-                    "type": "string",
-                    "default": "",
+                "tiamat.personalization": {
+                    "type": "object",
+                    "default": {
+                        "personalizedPrompt": ""
+                    },
                     "description": "Extra preferences that Tiamat will use to curate its responses for you."
                 }
             }

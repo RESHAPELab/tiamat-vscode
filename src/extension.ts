@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import {post} from 'axios';
 import * as fs from 'fs';
 import {authenticateWithGitHub} from './auth';
-import {syncPersonalization, updatePersonalization} from './personalization';
+import {syncPersonalization, updatePersonalization, Personalization} from './personalization';
 import apiUrl from "./config";
 
 const MAX_HISTORY_LENGTH = 6;
@@ -47,7 +47,17 @@ export function activate(context: vscode.ExtensionContext) {
 
             const apiResponse = await post(`${apiUrl}/api/feedback`, {rating: ratingEnum, reason: customReason, ...args});
             console.log('API Response:', apiResponse.data);
-            vscode.window.showInformationMessage('Thank you for your feedback!');
+            
+            vscode.window.showInformationMessage(
+                'Thank you for your feedback! Personalization has been updated.',
+                'Open Personalization Settings'
+                ).then(selection => {
+                    if (selection === 'Open Personalization Settings') {
+                        vscode.commands.executeCommand('tiamat.openPersonalization');
+                    }
+                }
+            );
+
         } catch (error) {
             console.error('Error posting feedback:', error);
             vscode.window.showErrorMessage('An error occurred while posting feedback. Please try again later.');
@@ -154,28 +164,35 @@ export function activate(context: vscode.ExtensionContext) {
 
     vscode.workspace.onDidChangeConfiguration(async (e) => {
         if (
-            e.affectsConfiguration('personalization.prompt')
+            e.affectsConfiguration('tiamat.personalization')
         ) {
             const config = vscode.workspace.getConfiguration();
-            const newPrompt = config.get<string>('personalization.prompt');
+            const personalization = config.get<Personalization>('tiamat.personalization');
 
-            if (newPrompt) {
-                updatePersonalization(context, newPrompt);
+            if (personalization) {
+                updatePersonalization(context, personalization);
             }
         }
     });
     
     // Allow user to manage personalization
     context.subscriptions.push(
-        vscode.commands.registerCommand('extension.openPersonalization', () => {
+        vscode.commands.registerCommand('tiamat.openPersonalization', async () => {
             vscode.window.showInformationMessage('Opening Tiamat Personalization settings...');
+
+            await syncPersonalization(context);
+
+            vscode.commands.executeCommand(
+                'workbench.action.openSettings',
+                '@ext:RESHAPELab.tiamat tiamat.personalization'
+            );
         })
     );
       
     const personalizationStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
     personalizationStatusBarItem.text = '$(gear) Tiamat Personalization';
     personalizationStatusBarItem.tooltip = 'View or modify your personalization settings for Tiamat';
-    personalizationStatusBarItem.command = 'extension.openPersonalization';
+    personalizationStatusBarItem.command = 'tiamat.openPersonalization';
     personalizationStatusBarItem.show();
 
     context.subscriptions.push(personalizationStatusBarItem);
