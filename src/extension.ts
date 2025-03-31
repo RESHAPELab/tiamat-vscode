@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import {post} from 'axios';
 import * as fs from 'fs';
 import {authenticateWithGitHub} from './auth';
-import {syncPersonalization, updatePersonalization, Personalization} from './personalization';
+import {syncPersonalization, updatePersonalization} from './personalization';
 import apiUrl from "./config";
 
 const MAX_HISTORY_LENGTH = 6;
@@ -164,10 +164,10 @@ export function activate(context: vscode.ExtensionContext) {
 
     vscode.workspace.onDidChangeConfiguration(async (e) => {
         if (
-            e.affectsConfiguration('tiamat.personalization')
+            e.affectsConfiguration('tiamat')
         ) {
             const config = vscode.workspace.getConfiguration();
-            const personalization = config.get<Personalization>('tiamat.personalization');
+            const personalization = config.get<string[]>('tiamat.personalizedPrompt');
 
             if (personalization) {
                 updatePersonalization(context, personalization);

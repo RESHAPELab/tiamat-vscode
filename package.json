@@ -41,11 +41,9 @@
         "configuration": {
             "title": "Tiamat Personalization",
             "properties": {
-                "tiamat.personalization": {
-                    "type": "object",
-                    "default": {
-                        "personalizedPrompt": ""
-                    },
+                "tiamat.personalizedPrompt": {
+                    "type": "array",
+                    "default": [],
                     "description": "Extra preferences that Tiamat will use to curate its responses for you."
                 }
             }
