@@ -41,9 +41,15 @@
         "configuration": {
             "title": "Tiamat Personalization",
             "properties": {
+                "tiamat.personalizeResponses": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "When enabled, Tiamat will attempt to create personalized preferences when you provide feedback and use it to tailor its responses."
+                },
                 "tiamat.personalizedPrompt": {
-                    "type": "array",
-                    "default": [],
+                    "type": "string",
+                    "default": "",
+                    "editPresentation": "multilineText",
                     "description": "Extra preferences that Tiamat will use to curate its responses for you."
                 }
             }

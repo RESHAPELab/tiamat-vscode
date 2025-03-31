@@ -45,18 +45,25 @@ export function activate(context: vscode.ExtensionContext) {
                 return;
             }
 
-            const apiResponse = await post(`${apiUrl}/api/feedback`, {rating: ratingEnum, reason: customReason, ...args});
+            let config = vscode.workspace.getConfiguration();
+            let personalize = config.get<boolean>("tiamat.personalizeResponses");
+
+            const apiResponse = await post(`${apiUrl}/api/feedback`, {rating: ratingEnum, reason: customReason, personalize, ...args});
             console.log('API Response:', apiResponse.data);
             
-            vscode.window.showInformationMessage(
-                'Thank you for your feedback! Personalization has been updated.',
-                'Open Personalization Settings'
-                ).then(selection => {
-                    if (selection === 'Open Personalization Settings') {
-                        vscode.commands.executeCommand('tiamat.openPersonalization');
+            if (personalize) {
+                vscode.window.showInformationMessage(
+                    'Thank you for your feedback! Personalization has been updated.',
+                    'Open Personalization Settings'
+                    ).then(selection => {
+                        if (selection === 'Open Personalization Settings') {
+                            vscode.commands.executeCommand('tiamat.openPersonalization');
+                        }
                     }
-                }
-            );
+                );
+            } else {
+                vscode.window.showInformationMessage("Thank you for your feedback!");
+            }
 
         } catch (error) {
             console.error('Error posting feedback:', error);
@@ -66,7 +73,6 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Handles responses to chat prompts
 	const chatHandler: vscode.ChatRequestHandler = async (request: vscode.ChatRequest, chatContext: vscode.ChatContext, stream: vscode.ChatResponseStream, token: vscode.CancellationToken) => {
-        stream.progress("Thinking...");
         console.log("User message:", request.prompt);
         console.log("Token:", token);
         console.log("References:", request.references);
@@ -134,8 +140,11 @@ export function activate(context: vscode.ExtensionContext) {
         }
         console.log("User ID:", id);
 
+        let config = vscode.workspace.getConfiguration();
+        let personalize = config.get<boolean>("tiamat.personalizeResponses");
+
         try {
-            const apiResponse = await post(`${apiUrl}/api/prompt`, {id, code, message: request.prompt, history});
+            const apiResponse = await post(`${apiUrl}/api/prompt`, {id, code, message: request.prompt, history, personalize});
             stream.markdown(apiResponse.data.response);
             var args = {id: id, code: code, message: request.prompt, response: apiResponse.data.response};          
             stream.button({
@@ -164,10 +173,10 @@ export function activate(context: vscode.ExtensionContext) {
 
     vscode.workspace.onDidChangeConfiguration(async (e) => {
         if (
-            e.affectsConfiguration('tiamat')
+            e.affectsConfiguration('tiamat.personalizedPrompt')
         ) {
             const config = vscode.workspace.getConfiguration();
-            const personalization = config.get<string[]>('tiamat.personalizedPrompt');
+            const personalization = config.get<string>('tiamat.personalizedPrompt');
 
             if (personalization) {
                 updatePersonalization(context, personalization);
@@ -184,7 +193,7 @@ export function activate(context: vscode.ExtensionContext) {
 
             vscode.commands.executeCommand(
                 'workbench.action.openSettings',
-                '@ext:RESHAPELab.tiamat tiamat.personalization'
+                '@ext:RESHAPELab.tiamat'
             );
         })
     );
