@@ -2,6 +2,7 @@ out
 dist
 node_modules
 .vscode-test/
-*.vsix
 
 .fake
+.env
+src/config.ts

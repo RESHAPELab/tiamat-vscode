@@ -25,6 +25,10 @@ Before you get started, make sure you have Node.js, npm/npx, and VS Code install
 
 Once you've cloned the repository to your local machine, navigate to the directory and run `npm install` to set up your environment with all of the required packages.
 
+### Configuring the extension
+
+Before running the extension, you'll have to set up a `config.ts` file. Copy `src/config.template.ts`, rename it to `config.ts`, and fill in the required values.
+
 ### Running and Debugging the Extension
 
 Once everything is set up, open the project in VS Code. Navigate to the "Run and Debug" tab by clicking the icon or by pressing `Ctrl+Shift+D`. Ensure the "Run Extension" option is selected in the dropdown and click the play button, or press `F5`. A new VS Code window should open up, which will be running the extension.

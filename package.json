@@ -2,7 +2,8 @@
     "name": "tiamat",
     "displayName": "Tiamat",
     "description": "",
-    "version": "0.0.1",
+    "version": "0.1.0",
+    "publisher": "RESHAPELab",
     "engines": {
         "vscode": "^1.93.0"
     },
@@ -10,7 +11,9 @@
         "AI",
         "Chat"
     ],
-    "activationEvents": [],
+    "activationEvents": [
+        "onChatParticipant:tiamat.Tiamat"
+    ],
     "main": "./out/extension.js",
     "contributes": {
         "chatParticipants": [
@@ -24,15 +27,37 @@
             }
         ],
         "authentication": [
-          {
-            "id": "github",
-            "label": "GitHub"
-          }
-        ]
+            {
+                "id": "github",
+                "label": "GitHub"
+            }
+        ],
+        "commands": [
+            {
+                "command": "tiamat.openPersonalization",
+                "title": "Open Personalization Settings"
+            }
+        ],
+        "configuration": {
+            "title": "Tiamat Personalization",
+            "properties": {
+                "tiamat.personalizeResponses": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "When enabled, Tiamat will attempt to create personalized preferences when you provide feedback and use it to tailor its responses."
+                },
+                "tiamat.personalizedPrompt": {
+                    "type": "string",
+                    "default": "",
+                    "editPresentation": "multilineText",
+                    "description": "Extra preferences that Tiamat will use to curate its responses for you."
+                }
+            }
+        }
     },
     "scripts": {
         "vscode:prepublish": "npm run compile",
-        "compile": "tsc -p ./",
+        "compile": "node -r dotenv/config && tsc -p ./",
         "watch": "tsc -watch -p ./",
         "pretest": "npm run compile && npm run lint",
         "lint": "eslint",
@@ -43,8 +68,9 @@
         "@stylistic/eslint-plugin": "^2.9.0",
         "@types/mocha": "^10.0.3",
         "@types/node": "18.x",
-        "@types/vscode": "^1.94.0",
+        "@types/vscode": "^1.93.0",
         "@vscode/test-electron": "^2.3.6",
+        "dotenv": "^16.4.7",
         "eslint": "^9.13.0",
         "glob": "^10.3.10",
         "mocha": "^10.2.0",
@@ -53,7 +79,10 @@
     },
     "dependencies": {
         "axios": "^1.7.9",
-        "code-tutor": "file:",
         "tiamat": "file:"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/RESHAPELab/tiamat-vscode"
     }
 }
