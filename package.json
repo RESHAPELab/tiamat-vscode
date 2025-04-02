@@ -2,7 +2,7 @@
     "name": "tiamat",
     "displayName": "Tiamat",
     "description": "",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "publisher": "RESHAPELab",
     "engines": {
         "vscode": "^1.93.0"
@@ -70,6 +70,7 @@
         "@types/node": "18.x",
         "@types/vscode": "^1.93.0",
         "@vscode/test-electron": "^2.3.6",
+        "dotenv": "^16.4.7",
         "eslint": "^9.13.0",
         "glob": "^10.3.10",
         "mocha": "^10.2.0",
@@ -78,7 +79,6 @@
     },
     "dependencies": {
         "axios": "^1.7.9",
-        "dotenv": "^16.4.7",
         "tiamat": "file:"
     },
     "repository": {
