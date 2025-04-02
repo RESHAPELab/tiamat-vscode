@@ -52,6 +52,8 @@ export function activate(context: vscode.ExtensionContext) {
             console.log('API Response:', apiResponse.data);
             
             if (personalize) {
+                await syncPersonalization(context);
+                
                 vscode.window.showInformationMessage(
                     'Thank you for your feedback! Personalization has been updated.',
                     'Open Personalization Settings'
