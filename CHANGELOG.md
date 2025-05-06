@@ -1,9 +1,24 @@
 # Change Log
 
-All notable changes to the "tiamat-vscode" extension will be documented in this file.
+All notable changes to this project will be documented in this file.
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+## [0.2.0] - 2025-05-06
+Began work for interchangeable personas.
 
-## [Unreleased]
+### Added
+- Persona support
+- Default "Tiamat" persona and an "Advanced" persona
 
-- Initial release
+### Changed
+
+### Fixed
+
+## [0.1.0] - 2025-04-02
+Initial release with basic chatbot functionality.
+
+### Added
+- Personalization based on user input
+
+### Changed
+
+### Fixed
