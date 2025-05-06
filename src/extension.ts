@@ -144,9 +144,21 @@ export function activate(context: vscode.ExtensionContext) {
 
         let config = vscode.workspace.getConfiguration();
         let personalize = config.get<boolean>("tiamat.personalizeResponses");
+        
+        let personaConfig = config.inspect("tiamat.persona");
+        let defaultPersona = personaConfig?.defaultValue;
+        let chosenPersona = config.get<string>("tiamat.persona");
+
+        console.log("Persona config:", personaConfig);
+
+        let persona = undefined;
+
+        if (chosenPersona !== defaultPersona) {
+            persona = chosenPersona;
+        }
 
         try {
-            const apiResponse = await post(`${apiUrl}/api/prompt`, {id, code, message: request.prompt, history, personalize});
+            const apiResponse = await post(`${apiUrl}/api/prompt`, {id, code, message: request.prompt, history, personalize, persona});
             stream.markdown(apiResponse.data.response);
             var args = {id: id, code: code, message: request.prompt, response: apiResponse.data.response};          
             stream.button({

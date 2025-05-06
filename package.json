@@ -2,7 +2,7 @@
     "name": "tiamat",
     "displayName": "Tiamat",
     "description": "",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "publisher": "RESHAPELab",
     "engines": {
         "vscode": "^1.93.0"
@@ -41,10 +41,23 @@
         "configuration": {
             "title": "Tiamat Personalization",
             "properties": {
+                "tiamat.persona": {
+                    "type": "string",
+                    "enum": [
+                        "Tiamat",
+                        "Advanced"
+                    ],
+                    "enumDescriptions": [
+                        "The default behavior for Tiamat. A friendly computer science tutor intended for novice students, who will provide plenty of direct guidance.",
+                        "Alternate behavior for more advanced students. Assumes more foundational knowledge, and encourages self-learning."
+                    ],
+                    "default": "Tiamat",
+                    "description": "Currently active persona that Tiamat will embody in its responses."
+                },
                 "tiamat.personalizeResponses": {
                     "type": "boolean",
                     "default": false,
-                    "description": "When enabled, Tiamat will attempt to create personalized preferences when you provide feedback and use it to tailor its responses."
+                    "description": "When enabled, Tiamat will attempt to create a personalized prompt when you provide feedback and use it to tailor its responses."
                 },
                 "tiamat.personalizedPrompt": {
                     "type": "string",
